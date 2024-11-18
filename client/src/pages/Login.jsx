@@ -1,38 +1,46 @@
-import { useContext, useState } from "react";
 import "../css/Login.css";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AppContext } from "../App";
-import axios from "axios";
+import { useLogin } from "../hooks/useLogin";
+import { useDecodeToken } from "../hooks/useDecodeToken";
 
 export const Login = () => {
-  let navigate = useNavigate();
-  const { userData, setUserData } = useContext(AppContext);
+  const navigate = useNavigate();
+  const { loginUser } = useLogin();
+  const { decodeUserToken } = useDecodeToken();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    identifier: "",
+    password: "",
+  });
+  const [response, setResponse] = useState("");
 
-  const [response, setResponse] = useState(""); 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
-  const loginAPI = async (getPost) => {
-    try {
-      const data = await axios.post("api_link_here", getPost);
-      setUserData(data.data);
-      return true;
-    } catch (err) {
-      setResponse(err.response.data.message);
-      return;
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const response = await loginUser(formData);
+
+    if (response?.status === 200) {
+      sessionStorage.setItem("token", response?.response);
+      navigate("/home");
+    } else {
+      setResponse(response?.response);
+      setTimeout(() => {
+        setResponse("");
+      }, 3000);
     }
   };
 
-  const handleLogin = async () => {
-    const data = {
-      email: email,
-      password: password,
-    };
-
-    const status = await loginAPI(data);
-    status && navigate("/home");
-  };
+  useEffect(() => {
+    decodeUserToken();
+  });
 
   return (
     <div>
@@ -40,34 +48,46 @@ export const Login = () => {
         <div className="row justify-content-center login-container align-content-center">
           <div className="col-4 border align-content-center text-center login-form">
             <div className="login-title">Log in</div>
-            <span style={{ fontSize: "13px", color: "red" }}>{response}</span>
-            <div className="row justify-content-center mt-3">
-              <div className="col-8">
-                <input
-                  className="input-container w-100"
-                  type="text"
-                  placeholder="Email:"
-                  onChange={(e) => setEmail(e.target.value)}
-                />
+            <span style={{ fontSize: "13px", color: "red", fontWeight: "600" }}>
+              {response}
+            </span>
+            <form onSubmit={handleLogin}>
+              <div className="row justify-content-center mt-3">
+                <div className="col-8">
+                  <input
+                    className="input-container w-100"
+                    type="text"
+                    placeholder="Email/Username:"
+                    name="identifier"
+                    value={formData.identifier}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
-            </div>
-            <div className="row justify-content-center mt-3">
-              <div className="col-8">
-                <input
-                  className="input-container w-100"
-                  type="password"
-                  placeholder="Password:"
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+              <div className="row justify-content-center mt-3">
+                <div className="col-8">
+                  <input
+                    className="input-container w-100"
+                    type="password"
+                    placeholder="Password:"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                </div>
               </div>
-            </div>
-            <div className="row justify-content-center mt-3">
-              <div className="col-8">
-                <button onClick={handleLogin} className="login-btn w-100">
-                  Log in
-                </button>
+              <div className="row justify-content-center mt-3">
+                <div className="col-8">
+                  <button
+                    onClick={handleLogin}
+                    className="login-btn w-100"
+                    type="submit"
+                  >
+                    Log in
+                  </button>
+                </div>
               </div>
-            </div>
+            </form>
             <div className="row justify-content-center mt-2 mb-3">
               <div className="col-8 text-white text-end">
                 <Link to={"/signup"} className=" text-white">

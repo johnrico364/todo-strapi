@@ -1,55 +1,24 @@
-import { useContext } from "react";
 import "../css/Home.css";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppContext } from "../App";
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
+import { useGetTodo } from "../hooks/useGetTodo";
+import { useDecodeToken } from "../hooks/useDecodeToken";
 
 export const Home = () => {
   const navigate = useNavigate();
-  const { userData, updateId, setUpdateId, setUpdateTitle } =
-    useContext(AppContext);
+  const { getAllTodos } = useGetTodo();
+  const { decodeUserToken } = useDecodeToken();
 
-  const getTodoAPI = async () => {
-    try {
-      const data = await axios.get(
-        `api_link_here`
-      );
-      return data.data.items;
-    } catch (err) {
-      console.log(err);
-      return err;
-    }
-  };
-  const statusAPI = async (newStatus, id) => {
-    try {
-      await axios.put(
-        `api_link_here`,
-        newStatus
-      );
-      return true;
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const [todos, set_todos] = useState([]);
 
-  const data = useQuery({
-    queryKey: ["todos"],
-    queryFn: getTodoAPI,
-    refetchInterval: 500,
-  });
-
-  const toUpdate = (todoId, title) => {
-    setUpdateId(todoId);
-    setUpdateTitle(title);
-    navigate("/update");
+  const effectFn = async () => {
+    const response = await getAllTodos();
+    set_todos(response);
   };
-  const handleStatus = async (status, id) => {
-    const data = {
-      status: status == true ? false : true,
-    };
-    await statusAPI(data, id);
-  };
+  useEffect(() => {
+    decodeUserToken();
+    effectFn();
+  }, []);
 
   return (
     <div className="container-fluid" style={{ height: "100vh" }}>
@@ -60,38 +29,23 @@ export const Home = () => {
         <div className="col-5">
           <div className="todo-container text-center ">
             <div className="task-container overflow-auto px-4">
-              {data.isLoading && <h1>Loading...</h1>}
-              {data.data?.map((d) => {
-                if (d.status === 0) {
-                  return (
-                    <div className="row justify-content-center">
-                      <div
-                        className="todo-task col-10"
-                        onClick={() => toUpdate(d.todo_id, d.title)}
-                      >
-                        {d.title}
-                      </div>
-                      <div className="col-1 pt-3">
-                        <i
-                          className="task-checkbox bi bi-clipboard2-check"
-                          onClick={() => handleStatus(d.status, d.todo_id)}
-                        ></i>
-                      </div>
-                    </div>
-                  );
-                }
+              {todos.map((d) => {
                 return (
                   <div className="row justify-content-center">
                     <div
-                      className="task-finished todo-task col-10"
-                      onClick={() => toUpdate(d.todo_id, d.title)}
+                      className={`${
+                        d.isFinished && "task-finished"
+                      } todo-task col-10`}
+                      // onClick={() => toUpdate(d.todo_id, d.title)}
                     >
                       {d.title}
                     </div>
                     <div className="col-1 pt-3">
                       <i
-                        className="checkbox-finish task-checkbox bi bi-clipboard2-check"
-                        onClick={() => handleStatus(d.status, d.todo_id)}
+                        className={`${
+                          d.isFinished && "checkbox-finish"
+                        } task-checkbox bi bi-clipboard2-check`}
+                        // onClick={() => handleStatus(d.status, d.todo_id)}
                       ></i>
                     </div>
                   </div>

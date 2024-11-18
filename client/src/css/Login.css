@@ -25,6 +25,7 @@
 .input-container::placeholder {
   font-size: 13px;
   letter-spacing: 0.5px;
+  padding-left: .8rem;
 }
 .input-container:focus{
     outline: none;
