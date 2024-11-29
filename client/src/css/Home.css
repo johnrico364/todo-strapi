@@ -29,14 +29,22 @@
 
 .todo-task {
   text-align: start;
-  height: 50px;
-  font-size: 20px;
+  /* height: 50px; */
+  /* font-size: 20px; */
   margin: 15px 0 0 0;
   background: rgba(139, 87, 42, 0.6);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   backdrop-filter: blur(3px);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+
+  .title{
+    font-size: 20px;
+  }
+  .description{
+    font-size: 15px;
+  }
 }
 .task-finished{
   background: rgba(20, 235, 49, 0.6) !important;

@@ -9,26 +9,22 @@ export const Login = () => {
   const { loginUser } = useLogin();
   const { decodeUserToken } = useDecodeToken();
 
-  const [formData, setFormData] = useState({
-    identifier: "",
-    password: "",
-  });
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
   const [response, setResponse] = useState("");
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const response = await loginUser(formData);
+    const loginForm = {
+      identifier,
+      password,
+    };
+
+    const response = await loginUser(loginForm);
 
     if (response?.status === 200) {
       sessionStorage.setItem("token", response?.response);
+      console.log(response);
       navigate("/home");
     } else {
       setResponse(response?.response);
@@ -40,7 +36,7 @@ export const Login = () => {
 
   useEffect(() => {
     decodeUserToken();
-  });
+  }, []);
 
   return (
     <div>
@@ -58,9 +54,7 @@ export const Login = () => {
                     className="input-container w-100"
                     type="text"
                     placeholder="Email/Username:"
-                    name="identifier"
-                    value={formData.identifier}
-                    onChange={handleChange}
+                    onChange={(e) => setIdentifier(e.target.value)}
                   />
                 </div>
               </div>
@@ -70,9 +64,7 @@ export const Login = () => {
                     className="input-container w-100"
                     type="password"
                     placeholder="Password:"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
               </div>

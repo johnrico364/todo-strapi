@@ -1,45 +1,35 @@
-import { useNavigate } from "react-router-dom";
 import "../css/Update.css";
-import { useContext, useState } from "react";
-import { AppContext } from "../App";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useUpdateTodo } from "../hooks/useUpdateTodo";
+import { useDeleteTodo } from "../hooks/useDeleteTodo";
 
 export const Update = () => {
   const navigate = useNavigate();
-  const { updateId, updateTitle, setUpdateTitle } = useContext(AppContext);
+  const todoDetails = JSON.parse(sessionStorage.getItem("todoDetails"));
 
-  const updateTask = async (updatePost) => {
-    try {
-      await axios.put(`api_link_here`, updatePost);
-      return true;
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  const deleteTask = async () => {
-    try {
-      axios.delete(`api_link_here`);
-      return true;
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  const { updateTodo } = useUpdateTodo();
+  const { deleteTodo } = useDeleteTodo();
+
+  const [newTitle, setNewTitle] = useState(todoDetails?.title);
+  const [newDescription, setNewDescription] = useState(todoDetails?.description);
 
   const handleUpdate = async () => {
-    //sa update btn
-    const data = {
-      title: updateTitle,
+    if (newTitle === "") return;
+    const newTodo = {
+      data: {
+        title: newTitle,
+        description: newDescription,
+      },
     };
 
-    const status = await updateTask(data);
-
-    status && navigate("/home");
+    const response = await updateTodo(todoDetails?.id, newTodo);
+    if (response) navigate("/home");
   };
-  const handleDelete = async () => {
-    //sa delete btn
-    const status = await deleteTask();
 
-    status && navigate("/home");
+  const handleDelete = async () => {
+    const response = await deleteTodo(todoDetails?.id);
+    if (response) navigate("/home");
   };
 
   return (
@@ -55,9 +45,16 @@ export const Update = () => {
                     className="update-input w-100"
                     type="text"
                     placeholder="Update:"
-                    defaultValue={updateTitle}
-                    onChange={(e) => setUpdateTitle(e.target.value)}
+                    defaultValue={todoDetails?.title}
+                    onChange={(e) => setNewTitle(e.target.value)}
                   />
+                  <textarea 
+                    className="update-input w-100 mt-3" 
+                    style={{height: '200px'}}
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                  >
+                  </textarea>
                 </div>
                 <div className="col-7 mt-4 ">
                   <button

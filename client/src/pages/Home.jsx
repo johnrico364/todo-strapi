@@ -1,18 +1,40 @@
 import "../css/Home.css";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import { useGetTodo } from "../hooks/useGetTodo";
 import { useDecodeToken } from "../hooks/useDecodeToken";
+import { jwtDecode } from "jwt-decode";
+import { useUpdateTodoStatus } from "../hooks/useUpdateTodoStatus";
 
 export const Home = () => {
   const navigate = useNavigate();
+
   const { getAllTodos } = useGetTodo();
   const { decodeUserToken } = useDecodeToken();
+  const { updateTodoStatus } = useUpdateTodoStatus();
 
   const [todos, set_todos] = useState([]);
 
+  const toUpdate = (todo) => {
+    const toParse = {
+      id: todo?.documentId,
+      title: todo?.title,
+      description: todo?.description,
+    };
+    sessionStorage.setItem("todoDetails", JSON.stringify(toParse));
+    navigate("/update");
+  };
+
+  const updateStatus = async (todo) => {
+    const response = updateTodoStatus(todo?.documentId, !todo?.isFinished);
+    if (response) window.location.reload();
+  };
+
   const effectFn = async () => {
-    const response = await getAllTodos();
+    const user_token = sessionStorage.getItem("token");
+    const decode = jwtDecode(user_token);
+
+    const response = await getAllTodos(decode?.id);
     set_todos(response);
   };
   useEffect(() => {
@@ -34,18 +56,21 @@ export const Home = () => {
                   <div className="row justify-content-center">
                     <div
                       className={`${
-                        d.isFinished && "task-finished"
+                        d?.isFinished && "task-finished"
                       } todo-task col-10`}
-                      // onClick={() => toUpdate(d.todo_id, d.title)}
+                      onClick={() => toUpdate(d)}
                     >
-                      {d.title}
+                      <div className="title">{d?.title}</div>
+                      <div className="description">
+                      {d?.description}
+                    </div>
                     </div>
                     <div className="col-1 pt-3">
                       <i
                         className={`${
-                          d.isFinished && "checkbox-finish"
+                          d?.isFinished && "checkbox-finish"
                         } task-checkbox bi bi-clipboard2-check`}
-                        // onClick={() => handleStatus(d.status, d.todo_id)}
+                        onClick={() => updateStatus(d)}
                       ></i>
                     </div>
                   </div>
@@ -57,7 +82,10 @@ export const Home = () => {
               className="btn-add-task bi bi-plus-circle-fill"
             ></i>
             <i
-              onClick={() => navigate("/")}
+              onClick={() => {
+                sessionStorage.removeItem("token");
+                navigate("/");
+              }}
               className="btn-logout bi bi-box-arrow-in-left"
             ></i>
           </div>
