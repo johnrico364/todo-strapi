@@ -16,7 +16,14 @@ export const Add = () => {
 
   const handleAdd = async () => {
     if (title === "" || title.length <= 3) {
-      setResponse("Title is empty or too short...");
+      setResponse("Title is empty or too short (min 3 characters)");
+      setTimeout(() => {
+        setResponse("");
+      }, 1500);
+      return;
+    }
+    if (description === "" || description.length <= 10) {
+      setResponse("Description is empty or too short (min 10 characters)");
       setTimeout(() => {
         setResponse("");
       }, 1500);
@@ -33,6 +40,7 @@ export const Add = () => {
     };
 
     const response = await addTodo(newTodo);
+
     if (response) navigate("/home");
   };
 
@@ -57,7 +65,7 @@ export const Add = () => {
                   />
                   <textarea
                     className="add-input w-100 mt-3"
-                    style={{height: '200px'}}
+                    style={{ height: "200px" }}
                     placeholder="Description:"
                     onChange={(e) => setDescription(e.target.value)}
                   />

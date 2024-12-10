@@ -15,7 +15,8 @@
     "title": {
       "type": "string",
       "required": true,
-      "unique": true
+      "unique": false,
+      "minLength": 3
     },
     "isFinished": {
       "type": "boolean",

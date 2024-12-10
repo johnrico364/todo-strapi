@@ -6,7 +6,7 @@ export const useAddTodo = () => {
       const data = await axios.post("http://localhost:1337/api/todos", newPost);
       return true;
     } catch (error) {
-      console.log(error);
+      console.log(error.response.data.error);
       return false;
     }
   };
