@@ -15,14 +15,14 @@ export const Add = () => {
   const [response, setResponse] = useState("");
 
   const handleAdd = async () => {
-    if (title === "" || title.length <= 3) {
+    if (title.length <= 3) {
       setResponse("Title is empty or too short (min 3 characters)");
       setTimeout(() => {
         setResponse("");
       }, 1500);
       return;
     }
-    if (description === "" || description.length <= 10) {
+    if (description.length <= 10) {
       setResponse("Description is empty or too short (min 10 characters)");
       setTimeout(() => {
         setResponse("");

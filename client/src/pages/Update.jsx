@@ -13,9 +13,23 @@ export const Update = () => {
 
   const [newTitle, setNewTitle] = useState(todoDetails?.title);
   const [newDescription, setNewDescription] = useState(todoDetails?.description);
-
+  const [response, setResponse] = useState("");
   const handleUpdate = async () => {
-    if (newTitle === "") return;
+    console.log(newTitle.length)
+    if (newTitle.length <= 3) {
+      setResponse("Title is empty or too short (min 3 characters)");
+      setTimeout(() => {
+        setResponse("");
+      }, 1500);
+      return;
+    }
+    if(newDescription.length <= 10) {
+      setResponse("Description is empty or too short (min 10 characters)");
+      setTimeout(() => {
+        setResponse("");
+      }, 1500);
+      return;
+    }
     const newTodo = {
       data: {
         title: newTitle,
@@ -55,6 +69,7 @@ export const Update = () => {
                     onChange={(e) => setNewDescription(e.target.value)}
                   >
                   </textarea>
+                  <p className="text-danger fw-bold">{response}</p>
                 </div>
                 <div className="col-7 mt-4 ">
                   <button
